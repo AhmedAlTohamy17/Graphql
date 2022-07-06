@@ -1,42 +1,25 @@
-const { ApolloServer, gql } = require('apollo-server');
 
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
-const typeDefs = gql`
-  type Book {
-    title: String
-    author: String
-  }
-
-  type Query {
-    books: [Book]
-  }
-`;
-const resolvers = {
-    Query: {
-        books: () => books,
-    },
-};
-const books = [
-    {
-        title: 'The Awakening',
-        author: 'Kate Chopin',
-    },
-    {
-        title: 'City of Glass',
-        author: 'Paul Auster',
-    },
-];
+const { ApolloServer, gql } = require("apollo-server")
+const { Category } = require("./resolvers/Category")
+const { Product } = require("./resolvers/Product")
+const { Query } = require("./resolvers/Query")
+const { typeDefs } = require("./schema")
+const { db } = require("./db")
+const { Mutation } = require("./resolvers/Mutation")
 
 const server = new ApolloServer({
     typeDefs,
-    resolvers,
-    csrfPrevention: true,
-    cache: 'bounded',
-});
+    resolvers: {
+        Query,
+        Category,
+        Product,
+        Mutation
+    },
+    context: {
+        db
+    }
+})
 
-
-server.listen(3000, () => {
-    console.log("server has been started");
-});
+server.listen().then(({ url }) => {
+    console.log("The server is up and runinng at " + url);
+})
